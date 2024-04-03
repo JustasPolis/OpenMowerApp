@@ -1,4 +1,4 @@
-
+import 'dart:developer' as developer;
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/map_model.dart';
@@ -48,10 +48,9 @@ class MqttConnection  {
   }
 
   void start() {
-    // client.logging(on: true);
     client.keepAlivePeriod = 20;
-    client.autoReconnect = false;
-    client.resubscribeOnAutoReconnect = false;
+    client.autoReconnect = true;
+    client.resubscribeOnAutoReconnect = true;
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
   }
@@ -65,7 +64,7 @@ class MqttConnection  {
     try {
       client.publishMessage("/teleop", high_qos ? MqttQos.atLeastOnce : MqttQos.atMostOnce, buffer);
     } catch(e) {
-      print("error publishing to mqtt");
+      developer.log('error publishing to mqtt', name: 'my.app.category');
     }
 
   }
@@ -132,6 +131,7 @@ class MqttConnection  {
     }
 
     print("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
+
 
     final RobotStateController robotStateController = Get.find();
     robotStateController.map.value = mapModel;
@@ -218,7 +218,7 @@ class MqttConnection  {
   }
 
   void onConnected() {
-    print("MQTT connected");
+    developer.log("MQTT connected"); 
     robotStateController.setConnected(true);
 
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
@@ -307,6 +307,7 @@ class MqttConnection  {
 
   void onDisconnected() {
     print("MQTT disconnected");
+    developer.log("MQTT disconnected"); 
     robotStateController.setConnected(false);
   }
 
@@ -334,19 +335,19 @@ class MqttConnection  {
         .withClientIdentifier("om-client-$_client_id");
       // .authenticateAs(settingsController.mqttUsername, settingsController.mqttPassword);
 
-    print('Mosquitto client connecting to ${client.server} on ${client.port}....');
+    developer.log('Mosquitto client connecting to ${client.server} on ${client.port}....');
     client.connectionMessage = connMess;
 
     try {
       await client.connect();
     } on Exception catch (e) {
-      print('EXAMPLE::client exception - $e');
+      developer.log("failed to connect to MQTT $e");
       client.disconnect();
       _connecting = false;
 
       return;
     }
-    print("MQTT connect success!");
+    developer.log("failed to connect to MQTT");
     _connecting = false;
   }
 
@@ -354,7 +355,7 @@ class MqttConnection  {
     if(client.connectionStatus?.state == MqttConnectionState.connected || client.connectionStatus?.state == MqttConnectionState.connecting) {
       return;
     }
-    print("trying reconnect MQTT");
+    developer.log("trying reconnect MQTT");
     connect();
   }
 
@@ -364,7 +365,7 @@ class MqttConnection  {
     try {
       client.publishMessage("/action", MqttQos.exactlyOnce, builder.payload!);
     } catch(e) {
-      print("error publishing to mqtt");
+      developer.log("error publishing to mqtt");
     }
   }
 

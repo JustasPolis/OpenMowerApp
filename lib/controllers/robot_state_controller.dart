@@ -25,7 +25,7 @@ class RobotStateController extends GetxController {
 
     if(!isConnected) {
       // disable all buttons if not connected
-      availableActions.clear();
+      // availableActions.clear();
     }
 
     robotState.value.isConnected = isConnected;

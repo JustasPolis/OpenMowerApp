@@ -26,7 +26,7 @@ class Dashboard extends GetView<RobotStateController> {
               elevation: 3,
               child: n.Column([
                 "Current State:".bodyLarge..m = 4,
-                Obx(() => controller.robotState.value.currentState.h4..m = 4)
+                Obx(() => controller.robotState.value.currentState.bodySmall..m = 4)
               ])
                 ..p = 16
                 ..mainAxisAlignment = MainAxisAlignment.start
